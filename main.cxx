@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "sgf/sgf.h"
 
 static struct timespec ts;
+static int playing;
 
 static void sgf_node_new(void)
 {
@@ -20,11 +22,13 @@ static void sgf_sz(int s)
 
 static void sgf_b(char cx, char cy)
 {
+	if(!playing) { sleep(1); playing = 1; }
 	printf("B[%c%c]",cx,cy);
 }
 
 static void sgf_w(char cx, char cy)
 {
+	if(!playing) { sleep(1); playing = 1; }
 	printf("W[%c%c]",cx,cy);
 }
 
@@ -123,6 +127,7 @@ int main(int argc, char** argv)
 	sgf_parse_fast(sgf);
 
 	free(sgf);
+	fclose(stdout);
 
 	return 0;
 }
