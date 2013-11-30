@@ -2,39 +2,65 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <assert.h>
 
 #include "sgf/sgf.h"
 
 static struct timespec ts;
 static int playing;
+static int s;
+static char msg[10000];
+
+static void mysend(void)
+{
+	size_t size;
+	size = send(s,msg,strlen(msg),0);
+	assert(size==strlen(msg));
+	printf("%s\n",msg);
+	msg[0] = '\0';
+}
 
 static void sgf_node_new(void)
 {
-	nanosleep(&ts,0);
-	fflush(stdout);
-	printf("\n;");
+	mysend();
+	//nanosleep(&ts,0);
+	//fflush(stdout);
+	sleep(1);
+	strcat(msg,";");
 }
 
-static void sgf_sz(int s)
+static void sgf_sz(int sz)
 {
-	printf("SZ[%d]",s);
+	char m[10];
+	sprintf(m,"SZ[%d]",sz);
+	strcat(msg,m);
 }
 
 static void sgf_b(char cx, char cy)
 {
+	char m[10];
+	sprintf(m,"B[%c%c]",cx,cy);
+	strcat(msg,m);
 	if(!playing) { sleep(1); playing = 1; }
-	printf("B[%c%c]",cx,cy);
 }
 
 static void sgf_w(char cx, char cy)
 {
+	char m[10];
+	sprintf(m,"W[%c%c]",cx,cy);
+	strcat(msg,m);
 	if(!playing) { sleep(1); playing = 1; }
-	printf("W[%c%c]",cx,cy);
 }
 
 static void sgf_add(char col, char cx, char cy)
 {
-	printf("A%c[%c%c]",col,cx,cy);
+	char m[10];
+	sprintf(m,"A%c[%c%c]",col,cx,cy);
+	strcat(msg,m);
 }
 
 static void sgf_ab(char cx, char cy)
@@ -53,12 +79,10 @@ static void sgf_ae(char cx, char cy)
 
 static void sgf_pw(const char *prop, int size)
 {
-	printf("PW[%s]",prop);
 }
 
 static void sgf_pb(const char *prop, int size)
 {
-	printf("PW[%s]",prop);
 }
 
 static void sgf_cr(char cx, char cy)
@@ -67,7 +91,6 @@ static void sgf_cr(char cx, char cy)
 
 static void sgf_prop_unknown(const char *prop, int size)
 {
-	//printf("%s",prop);
 }
 
 
@@ -88,7 +111,7 @@ static char* read_file(const char *sf)
 	fp = fopen(sf,"rt");
 	if(!fp) {
 		perror("file open failed");
-		exit(1);
+		exit(-1);
 	}
 	fseek(fp,0L,SEEK_END);
 	lSize = ftell(fp);
@@ -98,13 +121,13 @@ static char* read_file(const char *sf)
 	if(!buffer){
 		fclose(fp);
 		fputs("mem alloc failed",stderr);
-		exit(1);
+		exit(-1);
 	}
 	if(1!=fread(buffer,lSize,1,fp)) {
 		fclose(fp);
 		free(buffer);
 		fputs("read failed",stderr);
-		exit(1);
+		exit(-1);
 	}
 	fclose(fp);
 	return buffer;
@@ -112,6 +135,7 @@ static char* read_file(const char *sf)
 
 int main(int argc, char** argv)
 {
+	struct sockaddr_in addr;
 	char * sgffile;
 	char * sgf;
 	if(argc < 2)
@@ -121,13 +145,31 @@ int main(int argc, char** argv)
 	ts.tv_sec = 0;
 	ts.tv_nsec = 500*1000*1000;
 
+	/* socket stuff */
+	s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if(s < 0) {
+		perror("socket");
+		exit(-1);
+	}
+	bzero(&addr, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	addr.sin_port = htons(5000);
+
+	if(0 > connect(s,(struct sockaddr*)&addr,sizeof(addr))) {
+		perror("connect");
+		return -1;
+	}
+
 	sgf = read_file(sgffile);
 
 	sgf_init(&scb);
 	sgf_parse_fast(sgf);
 
-	free(sgf);
+	mysend();
 	fclose(stdout);
+	close(s);
+	free(sgf);
 
 	return 0;
 }
