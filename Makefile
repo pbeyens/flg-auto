@@ -8,7 +8,7 @@ TARGET = flg-auto
 OBJS = main.o sgf/sgf.o
 SRCS = main.cxx sgf/sgf.c
 
-.SUFFIXES: .o .cxx
+.SUFFIXES: .o .cxx .c
 
 all: $(OBJS)
 	$(LINK) $(LDFLAGS) $(OBJS) -o $(TARGET)
