@@ -4,7 +4,7 @@ CXXFLAGS = -Werror -Wall -I. -Isgf
 LDFLAGS  = 
 LINK     = $(CXX)
 
-TARGET = flg-autoreplay
+TARGET = flg-auto
 OBJS = main.o sgf/sgf.o
 SRCS = main.cxx sgf/sgf.c
 
