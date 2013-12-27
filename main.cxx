@@ -27,9 +27,7 @@ static void mysend(void)
 static void sgf_node_new(void)
 {
 	mysend();
-	//nanosleep(&ts,0);
-	//fflush(stdout);
-	sleep(1);
+	nanosleep(&ts,0);
 	strcat(msg,";");
 }
 
