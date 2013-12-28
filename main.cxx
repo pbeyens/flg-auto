@@ -8,7 +8,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "sgf/sgf.h"
+#include "sgf.h"
 
 static struct timespec ts;
 static int playing;

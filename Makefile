@@ -1,17 +1,18 @@
 CXX      = g++
 DEBUG    = -g
-CXXFLAGS = -Werror -Wall -I. -Isgf
-LDFLAGS  = 
+CXXFLAGS = -Werror -Wall -I. -I/usr/local/include
+LDFLAGS  = -L/usr/local/lib
+LIBS 	 = -lflgsgf
 LINK     = $(CXX)
 
 TARGET = flg-auto
-OBJS = main.o sgf/sgf.o
-SRCS = main.cxx sgf/sgf.c
+OBJS = main.o
+SRCS = main.cxx
 
 .SUFFIXES: .o .cxx .c
 
 all: $(OBJS)
-	$(LINK) $(LDFLAGS) $(OBJS) -o $(TARGET)
+	$(LINK) $(LDFLAGS) $(LIBS) $(OBJS) -o $(TARGET)
 
 %.o: %.cxx
 	$(CXX) $(CXXFLAGS) $(DEBUG) -c $< -o $@
