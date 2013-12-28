@@ -1,4 +1,4 @@
-CXX      = g++
+CXX      = gcc
 DEBUG    = -g
 CXXFLAGS = -Werror -Wall -I. -I/usr/local/include
 LDFLAGS  = -L/usr/local/lib -lflgsgf

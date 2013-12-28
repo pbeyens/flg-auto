@@ -71,34 +71,14 @@ static void sgf_aw(char cx, char cy)
 	sgf_add('W',cx,cy);
 }
 
-static void sgf_ae(char cx, char cy)
-{
-}
-
-static void sgf_pw(const char *prop, int size)
-{
-}
-
-static void sgf_pb(const char *prop, int size)
-{
-}
-
-static void sgf_cr(char cx, char cy)
-{
-}
-
-static void sgf_prop_unknown(const char *prop, int size)
-{
-}
-
-
-static const struct sgf_cb scb = { \
-	sgf_node_new, \
-	sgf_sz, \
-	sgf_b, sgf_w, sgf_ab, sgf_aw, sgf_ae, \
-	sgf_pw, sgf_pb, \
-	sgf_cr, \
-	sgf_prop_unknown };
+static const struct sgf_cb scb = {
+	.node_new = sgf_node_new,
+	.sz = sgf_sz,
+	.b = sgf_b,
+	.w = sgf_w,
+	.ab = sgf_ab,
+	.aw = sgf_aw
+};
 
 static char* read_file(const char *sf)
 {
@@ -161,8 +141,7 @@ int main(int argc, char** argv)
 
 	sgf = read_file(sgffile);
 
-	sgf_init(&scb);
-	sgf_parse_fast(sgf);
+	sgf_parse_fast(&scb,sgf);
 
 	mysend();
 	fclose(stdout);
